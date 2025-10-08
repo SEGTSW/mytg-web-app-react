@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
-import './ProductList.css'
+import React, { useState } from 'react';
+import './ProductList.css';
 import ProductItem from "../ProductItem/ProductItem";
-import {useTelegram} from "../hooks/useTelegram";
+import { useTelegram } from "../../hooks/useTelegram";
 
 const products = [
     { id: '1', title: 'Джинси', price: 1500, description: 'Сірі джинси, теплі' },
@@ -16,47 +16,43 @@ const products = [
     { id: '10', title: 'Рюкзак', price: 2300, description: 'Міський рюкзак з багатьма кишенями' }
 ];
 
-const getTotalPrice = (items = []) => {
-    return items.reduce((acc, item) => {
-        return acc += item.price;
-    }, 0)
-}
+const getTotalPrice = (items = []) =>
+    items.reduce((acc, item) => acc + item.price, 0);
 
 const ProductList = () => {
     const [addedItems, setAddedItems] = useState([]);
+    const { tg } = useTelegram();
 
-    const {tg} = useTelegram();
+    const onAdd = (product) => {
+        const isAlreadyAdded = addedItems.find(item => item.id === product.id);
+        let newItems;
 
-    const onAdd = (product) =>{
-
-        const alreadyAdded = addedItems.filter(item => item.id !== product.id);
-        let newItems = [];
-
-        if(alreadyAdded){
-            newItems= addedItems.filter(item => item.id !== product.id);
-
-        }else{
+        if (isAlreadyAdded) {
+            newItems = addedItems.filter(item => item.id !== product.id);
+        } else {
             newItems = [...addedItems, product];
         }
+
         setAddedItems(newItems);
 
-        if(newItems.length === 0){
+        if (newItems.length === 0) {
             tg.MainButton.hide();
-        }else {
+        } else {
             tg.MainButton.show();
             tg.MainButton.setParams({
-                text: `Купити ${getTotalPrice(newItems)}`,
+                text: `Купити ${getTotalPrice(newItems)} грн`,
             });
         }
-    }
+    };
 
     return (
-        <div className={'list'}>
+        <div className="list">
             {products.map(item => (
                 <ProductItem
-                product={item}
-                onAdd={onAdd}
-                className={'item'}
+                    key={item.id}
+                    product={item}
+                    onAdd={onAdd}
+                    className="item"
                 />
             ))}
         </div>
